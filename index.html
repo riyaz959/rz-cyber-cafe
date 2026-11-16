@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>RZ Cyber Cafe</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><meta name="theme-color" content="#5b3df5"><script src="https://accounts.google.com/gsi/client" async defer></script><style>
+<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>RZ Cyber Cafe</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png"><meta name="theme-color" content="#5b3df5"><script src="config.js"></script><style>
 :root{--bg:#eef0ff;--c:#fff;--t:#1d2140;--m:#6b7193;--b:#dfe3f7;--p:#5b3df5;--r:#ef4444;color-scheme:light}
 :root[data-theme=dark]{--bg:#0f1226;--c:#1a1e3a;--t:#eceeff;--m:#9aa0cc;--b:#2b305a;--p:#8b7bff;color-scheme:dark}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px/1.45 system-ui,"Noto Sans Bengali",sans-serif}
@@ -15,7 +15,7 @@ button,input,select,textarea{font:inherit;color:var(--t);background:var(--c);bor
 dialog{background:var(--c);color:var(--t);border:1px solid var(--b);border-radius:14px;width:min(520px,94vw);max-height:90vh}label{display:block;margin:8px 0 2px;color:var(--m);font-size:13px}dialog input,dialog select,dialog textarea{width:100%;display:block}
 .lg{width:38px;height:38px;border-radius:50%;background:#000}.hero{text-align:center;padding:6px 0}.hero img{width:150px;height:150px;border-radius:50%;box-shadow:0 10px 34px #d946ef66}.hero h1{margin:10px 0 2px;background:linear-gradient(90deg,#f97316,#d946ef,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent}.sc{cursor:pointer}
 </style></head><body>
-<div class="hd"><img class="lg" id="lg" alt="RZ"><b>RZ Cyber Cafe</b><button onclick="lang=lang=='bn'?'en':'bn';ls('lang',lang);render()">বাং/EN</button><button onclick="th()">◐</button><button id="sy" onclick="sync(1)">☁️</button></div>
+<div class="hd"><img class="lg" id="lg" alt="RZ"><b>RZ Cyber Cafe</b><button onclick="lang=lang=='bn'?'en':'bn';ls('lang',lang);render()">বাং/EN</button><button onclick="th()">◐</button><button id="sy" onclick="gs()">☁️</button></div>
 <div id="main"></div><nav></nav><dialog id="dlg"></dialog><dialog id="cf"></dialog>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -29,7 +29,7 @@ const pend=w=>w.status==='new'||w.status==='agent'||w.status==='done',live=w=>w.
 const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('aadhaar-manager',2);r.onupgradeneeded=()=>['works','agents','tomb'].forEach(s=>r.result.objectStoreNames.contains(s)||r.result.createObjectStore(s,{keyPath:'id'}));r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const ld=s=>new Promise(r=>{const q=db.transaction(s).objectStore(s).getAll();q.onsuccess=()=>{D[s]=q.result.sort((a,b)=>a.id<b.id?-1:1);r()};q.onerror=()=>r()});
 const wr=(s,fn)=>new Promise((res,rej)=>{const t=db.transaction(s,'readwrite');fn(t.objectStore(s));t.oncomplete=res;t.onerror=()=>rej(t.error)});
-const put=(s,o)=>wr(s,x=>x.put(o)).then(()=>sch()),del=(s,id)=>wr(s,x=>x.delete(id));
+const put=(s,o)=>wr(s,x=>x.put(o)).then(()=>fbPush(s,o)),del=(s,id)=>wr(s,x=>x.delete(id));
 const nid=(s,p)=>p+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,4).toUpperCase();
 const ask=(msg,info)=>new Promise(res=>{const d=$('#cf');d.innerHTML=`<p style="white-space:pre-line">${esc(msg)}</p><div class=bar><button class=pr>OK</button>${info?'':`<button>${T('বাতিল|Cancel')}</button>`}</div>`;const[a,b]=d.querySelectorAll('button');a.onclick=()=>{d.close();res(true)};if(b)b.onclick=()=>{d.close();res(false)};d.oncancel=()=>res(false);d.showModal()});
 const dlg=h=>{const d=$('#dlg');if(!h)return d.close();d.innerHTML=h;if(!d.open)d.showModal()};
@@ -79,37 +79,35 @@ const LOGO="data:image/webp;base64,UklGRlQXAABXRUJQVlA4WAoAAAAQAAAAvwAAvwAAQUxQS
 const mainHome=()=>`<div class=hero><img src="${LOGO}" alt="RZ Cyber Cafe"><h1>RZ Cyber Cafe</h1><div class=m>${T('আপনার সব সেবা এক জায়গায়|All your services in one place')}</div></div><h2>${T('সেবা সমূহ|Services')}</h2><div class=g><div class=sc style="background:linear-gradient(135deg,#5b3df5,#d946ef)" onclick="go('adh')"><h3>🪪 ${T('আধার সেবা|Aadhaar Services')}</h3><b>${D.works.filter(pend).length}</b> ${T('চলমান|pending')}<button>${T('খুলুন|Open')} →</button></div><div class=k style="border-style:dashed;display:flex;align-items:center">➕ ${T('নতুন সেবা এখানে যোগ হবে|New services will be added here')}</div></div>`;
 document.getElementById('lg').src=LOGO;{const l=document.createElement('link');l.rel='icon';l.href=LOGO;document.head.appendChild(l)}
 
-var busy=0,st,SY={s:'off',m:''},tok,texp=0,tc;const CID="831575847030-eabk4ophctd2am6eamsgm9c6nsf1eh3h.apps.googleusercontent.com";
-function sch(){if(!ls('gsync')||busy)return;clearTimeout(st);st=setTimeout(()=>sync(0),1500)}
+var SY={s:'off',m:''},RM=0,FBU=null;
 function setSy(k,m){SY={s:k,m:m||''};const e=$('#sy');if(e)e.textContent={off:'☁️✖',busy:'⏳',ok:'☁️✓',err:'⚠️'}[k]}
-const gtok=ui=>new Promise((res,rej)=>{if(tok&&Date.now()<texp)return res(tok);const g=window.google&&google.accounts&&google.accounts.oauth2;if(!g)return rej('gsi');
-tc=tc||g.initTokenClient({client_id:CID,scope:'https://www.googleapis.com/auth/drive.appdata',callback:()=>{},error_callback:e=>tc._rej&&tc._rej(e.type||'err')});
-tc._rej=rej;tc.callback=r=>{if(r.error)return rej(r.error);tok=r.access_token;texp=Date.now()+(r.expires_in-60)*1e3;ls('gsync','1');res(tok)};tc.requestAccessToken({prompt:ui?'':'none'})});
-const gf=async(u,o={})=>{const r=await fetch(u,{...o,headers:{...o.headers,Authorization:'Bearer '+tok}});if(r.status===401){tok=null;throw 'auth'}if(!r.ok)throw 'http'+r.status;return r};
-const norm=o=>JSON.stringify({w:[...o.works].sort((a,b)=>a.id<b.id?-1:1),a:[...o.agents].sort((a,b)=>a.id<b.id?-1:1),t:[...o.tomb].sort((a,b)=>a.id<b.id?-1:1)});
-async function sync(ui){if(!db)return;if(busy)return;busy=1;setSy('busy');let ch=0;
-try{await gtok(ui);const B='https://www.googleapis.com/drive/v3/files',n='rz-cyber-cafe-data.json';
-const L=await(await gf(B+'?spaces=appDataFolder&fields=files(id)&q='+encodeURIComponent("name='"+n+"'"))).json(),fid=L.files[0]&&L.files[0].id;
-let R={works:[],agents:[],tomb:[]};if(fid){const j=await(await gf(B+'/'+fid+'?alt=media')).json();R={works:j.works||[],agents:j.agents||[],tomb:j.tomb||[]}}
-const tm=new Map();[...D.tomb,...R.tomb].forEach(t=>{const o=tm.get(t.id);if(!o||t.t>o.t)tm.set(t.id,t)});const out={};
-for(const s of['works','agents']){const m=new Map();D[s].forEach(r=>m.set(r.id,r));R[s].forEach(r=>{const o=m.get(r.id);if(!o||(r.updated||'')>(o.updated||''))m.set(r.id,r)});
-for(const[id,r]of[...m]){const t=tm.get(id);if(t&&t.t>(r.updated||r.created||'')){m.delete(id);if(D[s].some(x=>x.id===id)){await del(s,id);ch=1}}}
-for(const r of m.values()){const o=D[s].find(x=>x.id===r.id);if(!o||JSON.stringify(o)!==JSON.stringify(r)){await put(s,r);ch=1}}out[s]=[...m.values()]}
-for(const t of tm.values())if(!D.tomb.some(x=>x.id===t.id&&x.t===t.t))await put('tomb',t);
-const M={works:out.works,agents:out.agents,tomb:[...tm.values()]};
-if(!fid||norm(M)!==norm(R)){const body=JSON.stringify({v:1,...M});
-if(fid)await gf('https://www.googleapis.com/upload/drive/v3/files/'+fid+'?uploadType=media',{method:'PATCH',headers:{'Content-Type':'application/json'},body});
-else await gf('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{'Content-Type':'multipart/related; boundary=rzb'},body:'--rzb\r\nContent-Type: application/json\r\n\r\n'+JSON.stringify({name:n,parents:['appDataFolder']})+'\r\n--rzb\r\nContent-Type: application/json\r\n\r\n'+body+'\r\n--rzb--'})}
-for(const s of['works','agents','tomb'])await ld(s);
-setSy('ok',T('শেষ সিঙ্ক: |Last sync: ')+new Date().toLocaleTimeString())}
-catch(e){e=String(e&&e.message||e);if(!ui&&(e==='auth'||/popup|interaction|access_denied|immediate|login|consent/i.test(e)))setSy('off',T('আবার লগইন দরকার: ☁️ চাপুন|Sign-in needed: tap ☁️'));else setSy('err',T('সিঙ্ক হয়নি: |Sync failed: ')+e)}
-busy=0;if(ch||view==='backup')render()}
-const syBox=()=>`<div class=box><b>☁️ ${T('Google Drive সিঙ্ক|Google Drive sync')}</b><p class=m>${ls('gsync')?T('চালু: প্রতিটি পরিবর্তন নিজে থেকে আপনার Drive-এর অ্যাপ-ফোল্ডারে সেভ হয় ও অন্য ডিভাইসের সাথে মিলে যায়।|On: every change is saved to your Drive app folder and merged across devices.'):T('বন্ধ। চালু করতে নিচের বাটন চাপুন।|Off. Tap the button below to enable.')}<br>${esc(SY.m)}</p><div class=bar><button class=pr onclick="sync(1)">${ls('gsync')?T('এখনই সিঙ্ক|Sync now'):T('Google দিয়ে লগইন ও সিঙ্ক চালু|Sign in with Google & enable sync')}</button></div></div>`;
+const fbPush=(s,o)=>{if(RM||!window.FB2||!FBU)return;FB2.push(s,o).catch(e=>setSy('err',String(e&&e.code||e)))};
+const tombT=id=>{const t=D.tomb.find(x=>x.id===id);return t?t.t:''};
+window.fbAuth=u=>{FBU=u;setSy(u?'ok':'off',u?T('চালু: |On: ')+u.email:'');if(view==='backup')render()};
+window.fbErr=e=>{setSy('err',String(e));if(view==='backup')render()};
+window.fbSnap=async(s,rem)=>{while(db===undefined)await new Promise(r=>setTimeout(r,100));if(!db)return;let ch=0;RM=1;
+try{if(s==='tomb'){for(const t of rem){if(!D.tomb.some(x=>x.id===t.id&&x.t===t.t)){await put('tomb',t);ch=1}const l=D.works.find(x=>x.id===t.id);if(l&&t.t>(l.updated||l.created||'')){await del('works',t.id);ch=1}}}
+else{for(const r of rem){const t=tombT(r.id);if(t&&t>(r.updated||r.created||''))continue;const l=D[s].find(x=>x.id===r.id);if(!l||(r.updated||'')>(l.updated||'')){await put(s,r);ch=1}}}}finally{RM=0}
+if(ch){await ld('works');await ld('agents');await ld('tomb');render()}
+if(s==='tomb'){for(const t of D.tomb)if(!rem.some(x=>x.id===t.id&&x.t===t.t))fbPush('tomb',t)}
+else{const m=new Map(rem.map(r=>[r.id,r]));for(const l of D[s]){const r=m.get(l.id);if(!r||(l.updated||'')>(r.updated||''))fbPush(s,l)}}
+setSy('ok',T('শেষ সিঙ্ক: |Last sync: ')+new Date().toLocaleTimeString())};
+function gs(){if(!window.FB2)return ask(T('Firebase লোড হয়নি, ইন্টারনেট দেখুন।|Firebase not loaded; check internet.'),1);if(FBU)return ask(T('সিঙ্ক চালু ✓ |Sync on ✓ ')+FBU.email,1);FB2.in().catch(e=>ask(T('লগইন হয়নি: |Sign-in failed: ')+(e.code||e),1))}
+const syBox=()=>`<div class=box><b>☁️ ${T('অটো সিঙ্ক (Firebase)|Auto sync (Firebase)')}</b><p class=m>${FBU?'✅ '+T('চালু: |On: ')+esc(FBU.email)+'. '+T('প্রতিটি পরিবর্তন ফোন ও কম্পিউটারে নিজে থেকে মিলে যায়।|Every change syncs to phone and computer automatically.'):T('লগইন করা নেই।|Not signed in.')}<br>${esc(SY.m)}</p><div class=bar>${FBU?`<button onclick="FB2.out()">${T('লগআউট|Sign out')}</button>`:`<button class=pr onclick="gs()">${T('Google দিয়ে লগইন|Sign in with Google')}</button>`}</div></div>`;
 function render(k){const N_=view==='home'||view==='backup'?[['home','🏠','হোম|Home'],['backup','💾','ব্যাকআপ|Backup']]:[['home','⬅️','মূল|Main'],['adh','🪪','আধার|Aadhaar'],['works','📋','কাজ|Work'],['agents','🧑‍💼','এজেন্ট|Agents']];
 $('nav').innerHTML=N_.map(([a,i,n])=>`<a class="${a===view?'on':''}" onclick="go('${a}')"><span>${i}</span>${T(n)}</a>`).join('');
 $('#main').innerHTML=(db?'':`<p class=err>${T('লোকাল স্টোরেজ (IndexedDB) নেই: রেকর্ড সেভ হবে না।|IndexedDB unavailable: records cannot be saved.')}</p>`)+{home:mainHome,adh,works,agents,backup:bk}[view]();if(k){const i=$('#q');if(i){i.focus();i.setSelectionRange(1e4,1e4)}}}
 (async()=>{document.documentElement.dataset.theme=ls('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
 try{db=await idb();await ld('works');await ld('agents');await ld('tomb');if(!D.agents.length){for(const a of[{id:'A001',name:'এজেন্ট ১ (বায়োমেট্রিক)',phone:'',svc:['bio']},{id:'A002',name:'এজেন্ট ২ (মোবাইল ও ০-৫ বছর)',phone:'',svc:['mob','kid']}])await put('agents',{...a,shopId:'main'});await ld('agents')}navigator.storage?.persist?.()}catch(e){db=null}render();
 try{claude.use('downloads').then(x=>DL=x)}catch(e){}
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});let q=0;const w=setInterval(()=>{if((window.google&&google.accounts)||++q>40){clearInterval(w);if(ls('gsync'))sync(0);else setSy('off')}},500);setInterval(()=>{if(!document.hidden&&ls('gsync'))sync(0)},6e4);addEventListener('online',sch);document.addEventListener('visibilitychange',()=>{if(!document.hidden)sch()})})();
-</script></body></html>
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});setSy('off');})();
+</script><script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,signOut}from"https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+import{getFirestore,collection,doc,setDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
+const app=initializeApp(window.FBCFG),au=getAuth(app),fs=getFirestore(app);let un=[];
+window.FB2={in:()=>signInWithPopup(au,new GoogleAuthProvider()),out:()=>signOut(au),push:(s,r)=>setDoc(doc(fs,'shops','main',s,r.id),r)};
+onAuthStateChanged(au,u=>{un.forEach(f=>f());un=[];window.fbAuth(u);
+if(u)['works','agents','tomb'].forEach(s=>un.push(onSnapshot(collection(fs,'shops','main',s),sn=>window.fbSnap(s,sn.docs.map(d=>d.data())),e=>window.fbErr(e.code))))});
+</script>
+</body></html>

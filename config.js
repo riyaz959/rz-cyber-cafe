@@ -1,0 +1,1 @@
+window.FBCFG={apiKey:"AIzaSyDFYpJNM-j0CExDYs61Qdg6ljD9okQCyas",authDomain:"rz-cyber-cafe-ec0c9.firebaseapp.com",projectId:"rz-cyber-cafe-ec0c9",storageBucket:"rz-cyber-cafe-ec0c9.firebasestorage.app",messagingSenderId:"107539515257",appId:"1:107539515257:web:ebcb6384701ad349d251a8"};
